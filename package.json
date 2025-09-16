@@ -1,0 +1,42 @@
+{
+  "name": "contract-js",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "clean": "turbo run clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
+    "publish:packages": "turbo run publish",
+    "version:patch": "pnpm -r version patch",
+    "version:minor": "pnpm -r version minor",
+    "version:major": "pnpm -r version major",
+    "cli:link": "cd cli && pnpm build && pnpm link --global",
+    "cli:unlink": "cd cli && pnpm unlink --global",
+    "cli:build": "cd cli && pnpm build"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "turbo": "^2.5.6",
+    "typescript": "5.9.2"
+  },
+  "packageManager": "pnpm@10.16.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6"
+  },
+  "pnpm": {
+    "overrides": {
+      "tsup>source-map": "^0.7.4"
+    }
+  }
+}

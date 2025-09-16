@@ -1,0 +1,43 @@
+{
+  "name": "@contract-js/pdf-utils",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "clean": "rm -rf dist",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-turbo": "^2.5.0",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.40.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jeonhui/contract-js.git",
+    "directory": "packages/contract-js-core"
+  },
+  "keywords": [
+    "typescript",
+    "utility",
+    "types",
+    "patterns"
+  ],
+  "author": "Jeonhui",
+  "license": "MIT"
+}

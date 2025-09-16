@@ -1,0 +1,509 @@
+---
+description: >
+  Comprehensive guidelines for TypeScript/JavaScript development in the Jeonhui monorepo.
+  Covers code style, TypeScript rules, naming conventions, documentation, error handling, 
+  import organization, performance, memory management, security best practices, testing, 
+  monorepo structure, package management, code review checklist, common patterns, 
+  development tools, best practices, and team conventions to ensure consistent, maintainable, 
+  and secure code across the project.
+globs:
+alwaysApply: false
+--
+
+# Jeonhui Cursor AI Rules
+
+## Project Context
+
+This is a TypeScript/JavaScript monorepo for Jeonhui, containing shared packages and utilities. The project uses pnpm for package management and follows a modular architecture with shared packages.
+
+## Code Style and Conventions
+
+### General Rules
+- **Line Length**: Maximum 100 characters per line
+- **Indentation**: 2 spaces per level
+- **File Naming**: Use kebab-case for most files
+- **Import Organization**: Group imports by category (built-in, external, internal) and sort alphabetically
+
+### TypeScript Rules
+- **Explicit Types**: Always specify types for function parameters and return values
+- **Avoid `any`**: Use specific types or `unknown` instead
+- **Interfaces vs Types**: Use interfaces for object structures, type aliases for utility types
+- **Strict Mode**: Always use strict TypeScript settings
+- **Type Imports**: Use type-only imports when importing types
+- **Consistent Type Definitions**: Prefer interfaces over type aliases for object structures
+
+### Naming Conventions
+- **Variables**: camelCase (e.g., `userName`, `totalCount`)
+- **Constants**: UPPER_CASE_SNAKE_CASE (e.g., `MAX_REQUESTS`, `API_TIMEOUT`)
+- **Functions**: camelCase (e.g., `calculatePrice()`, `fetchUserData()`)
+- **Files**: kebab-case (e.g., `user-repository.ts`, `validation-utils.js`)
+
+### Comments and Documentation
+- **JSDoc/TSDoc**: Use for public APIs (functions, classes, major methods) with usage, parameters, and return values
+- **Regular comments**: Explain "why" rather than "what"
+- **Clear and concise**: Focus on the purpose, not implementation details
+- **Complete sentences**: Start with capital letters and use proper punctuation
+- **Use tags**: FIXME, TODO, NOTE for clarity
+- **Korean comments**: All comments and documentation must be in Korean
+
+## Code Generation Guidelines
+
+### When Writing Utility Functions
+```typescript
+/**
+ * Describes the purpose of the utility function.
+ * @param param1 Description of the parameter
+ * @returns Description of the return value
+ */
+export const utilityFunction = (param1: ParamType): ReturnType => {
+  // Implementation
+};
+```
+
+### When Writing Type Definitions
+```typescript
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+type UserStatus = 'active' | 'inactive' | 'pending';
+
+export type { UserData, UserStatus };
+```
+
+### When Writing Classes
+```typescript
+/**
+ * Class description.
+ */
+export class ClassName {
+  private readonly property: PropertyType;
+
+  constructor(property: PropertyType) {
+    this.property = property;
+  }
+
+  /**
+   * Method description in English.
+   * @param param Description of the parameter
+   * @returns Description of the return value
+   */
+  public methodName(param: ParamType): ReturnType {
+    // Implementation
+  }
+}
+```
+
+## Error Handling Patterns
+
+### General Error Handling
+```typescript
+try {
+  // Business logic
+  return result;
+} catch (error) {
+  if (error instanceof SpecificError) {
+    throw new Error('Specific error message');
+  }
+  throw new Error('Unexpected error occurred.');
+}
+```
+
+### Async Error Handling
+```typescript
+const asyncFunction = async (param: ParamType): Promise<ReturnType> => {
+  try {
+    const result = await someAsyncOperation(param);
+    return result;
+  } catch (error) {
+    console.error('Error occurred during async operation:', error);
+    throw new Error('Async operation failed.');
+  }
+};
+```
+
+## Import Organization
+
+### Standard Import Order
+```typescript
+// 1. Built-in modules (rarely used)
+import { readFile } from 'fs';
+
+// 2. External libraries
+import { someLibrary } from 'external-package';
+
+// 3. Internal packages
+import { UserData } from '@packages/model';
+import { logger } from '@packages/logger';
+
+// 4. Local modules
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+```
+
+### Type-Only Imports
+```typescript
+import type { UserData } from '@packages/model';
+import type { ComponentProps } from './types';
+```
+
+## Performance Considerations
+
+### General Performance
+- Use appropriate data structures for the task
+- Avoid unnecessary computations
+- Implement proper caching when needed
+- Use pagination for large datasets
+- Optimize database queries when applicable
+
+### Memory Management
+- Avoid memory leaks in event listeners
+- Implement proper cleanup in long-running processes
+- Use weak references when appropriate
+
+## Security Best Practices
+
+### Input Validation
+```typescript
+interface ValidatedInput {
+  name: string;
+  email: string;
+  age: number;
+}
+
+const validateInput = (input: unknown): ValidatedInput => {
+  // Validation logic
+  if (typeof input !== 'object' || input === null) {
+    throw new Error('Validation Error.');
+  }
+  
+  // Additional validation...
+  return input as ValidatedInput;
+};
+```
+
+### Data Sanitization
+```typescript
+const sanitizeString = (input: string): string => {
+  return input.trim().replace(/[<>]/g, '');
+};
+```
+
+## Testing Guidelines
+
+### Unit Test Structure
+```typescript
+describe('ClassName', () => {
+  let instance: ClassName;
+
+  beforeEach(() => {
+    // Setup
+  });
+
+  describe('methodName', () => {
+    it('should handle success case', () => {
+      // Test implementation
+    });
+
+    it('should handle error case', () => {
+      // Test implementation
+    });
+  });
+});
+```
+
+### Test Utilities
+```typescript
+const createMockData = (overrides: Partial<DataType> = {}): DataType => ({
+  // Default data
+  ...overrides,
+});
+```
+
+## Monorepo Structure Guidelines
+
+### Project Structure
+```
+root/
+├── main/                    # Main application package
+│   ├── src/
+│   │   ├── index.ts        # Main entry point
+│   │   └── ...
+│   ├── package.json
+│   └── tsconfig.json
+├── cli/                     # CLI application package
+│   ├── src/
+│   │   ├── index.ts        # CLI entry point
+│   │   └── ...
+│   ├── package.json
+│   └── tsconfig.json
+├── packages/                # Shared packages and utilities
+│   ├── utils/              # General utilities
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   └── ...
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   └── ...                 # Other shared packages
+├── tools/                  # Development tools and configurations
+│   ├── eslint-config/
+│   ├── typescript-config/
+│   └── ...
+├── package.json            # Root package.json
+├── pnpm-workspace.yaml     # pnpm workspace configuration
+└── turbo.json             # Turbo build configuration
+```
+
+### Package Guidelines
+
+#### Main Package (`main/`)
+- **Purpose**: Primary application or library
+- **Location**: `main/`
+- **Entry Point**: `main/src/index.ts`
+- **Dependencies**: Can depend on packages in `packages/`
+- **Export**: Main functionality should be exported from `index.ts`
+
+#### CLI Package (`cli/`)
+- **Purpose**: Command-line interface application
+- **Location**: `cli/`
+- **Entry Point**: `cli/src/index.ts`
+- **Binary Entry**: `cli/bin/index.js` (compiled from `cli/src/index.ts`)
+- **Dependencies**: Can depend on packages in `packages/`
+- **Export**: CLI commands and utilities
+
+#### CLI Package Configuration
+```json
+{
+  "name": "@${organization-name}/cli",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "${cli-command-name}": "bin/index.js"
+  },
+  "scripts": {
+    "build": "bun run build.js"
+  },
+  "dependencies": {
+    "commander": "^14.0.0",
+    "@${organization-name}/generator": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.15",
+    "esbuild": "^0.25.6",
+    "typescript": "^5.8.3"
+  }
+}
+```
+
+#### CLI Binary Structure
+```
+cli/
+├── src/
+│   ├── index.ts              # Main CLI entry point
+│   ├── commands/             # CLI commands
+│   │   ├── generate.command.ts
+│   │   ├── build.ts
+│   │   └── ...
+│   └── utils/                # CLI utilities
+│       ├── logger.ts
+│       └── ...
+├── bin/
+│   └── index.js              # Compiled binary (generated)
+├── build.js                  # Build script
+├── package.json
+└── tsconfig.json
+```
+
+#### CLI Binary Guidelines
+- **Binary Name**: Use kebab-case for CLI command names
+- **Entry Point**: `bin/index.js` should be the compiled output
+- **Build Process**: Use esbuild or similar for fast compilation
+- **Type**: Set `"type": "module"` for ESM support
+- **Commander**: Use commander.js for CLI argument parsing
+- **Workspace Dependencies**: Reference internal packages with `workspace:*`
+
+#### Shared Packages (`packages/`)
+- **Purpose**: Reusable utilities, types, and shared code
+- **Location**: `packages/${packageName}/`
+- **Naming**: Use kebab-case for package names
+- **Entry Point**: `packages/${packageName}/src/index.ts`
+- **Dependencies**: Should be minimal and focused
+- **Export**: All public APIs should be exported from `index.ts`
+
+### Package Naming Conventions
+
+#### Package Names
+- **Main Package**: `main` or `@${organization-name}/main`
+- **CLI Package**: `cli` or `@${organization-name}/cli`
+- **Shared Packages**: `@${organization-name}/${package-name}` (e.g., `@${organization-name}/utils`, ...)
+
+#### Directory Structure
+- **Source Code**: `src/` directory
+- **Entry Point**: `src/index.ts`
+- **Configuration**: `package.json`, `tsconfig.json` at package root
+- **Tests**: `src/__tests__/` or `tests/` directory
+- **Documentation**: `README.md` at package root
+
+### Package Dependencies
+
+#### Internal Dependencies
+```typescript
+// In package.json
+{
+  "dependencies": {
+    "@${organization-name}/utils": "workspace:*"
+  }
+}
+```
+
+#### External Dependencies
+- Use exact versions for external dependencies
+- Group related dependencies together
+- Prefer minimal dependency footprint
+
+### Package Exports
+
+#### Main Package Exports
+```typescript
+// main/src/index.ts
+export { MainClass } from './main-class';
+export { MainService } from './main-service';
+export * from './types';
+```
+
+#### Shared Package Exports
+```typescript
+// packages/utils/src/index.ts
+export { utilityFunction } from './utility-function';
+export { helperClass } from './helper-class';
+export * from './types';
+```
+
+### Workspace Configuration
+
+#### pnpm-workspace.yaml
+```yaml
+packages:
+  - 'main'
+  - 'cli'
+  - 'packages/*'
+  - 'tools/*'
+```
+
+#### Root package.json Scripts
+```json
+{
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check"
+  }
+}
+```
+
+### Development Guidelines
+
+#### Adding New Packages
+1. Create directory under `packages/`
+2. Initialize with `package.json` and `tsconfig.json`
+3. Add to workspace configuration
+4. Update root dependencies if needed
+
+#### Package Dependencies
+- **Internal**: Use `workspace:*` for internal packages
+- **External**: Use exact versions for external packages
+- **Peer Dependencies**: Use for packages that should be provided by the consumer
+
+#### Build and Development
+- Use Turbo for build orchestration
+- Each package should have its own build script
+- Use shared TypeScript configuration from `tools/typescript-config`
+
+## Code Review Checklist
+
+When reviewing code, check for:
+- [ ] Proper TypeScript types
+- [ ] Error handling
+- [ ] Security considerations
+- [ ] Performance implications
+- [ ] Code readability
+- [ ] Test coverage
+- [ ] Documentation completeness
+- [ ] Korean comments and error messages
+- [ ] Consistent naming conventions
+- [ ] Proper import organization
+
+## Common Patterns to Follow
+
+### Service Pattern
+```typescript
+export class ServiceName {
+  private readonly dependency: DependencyType;
+
+  constructor(dependency: DependencyType) {
+    this.dependency = dependency;
+  }
+
+  /**
+   * Method description.
+   * @param param Description of the parameter
+   * @returns Description of the return value
+   */
+  public async methodName(param: ParamType): Promise<ReturnType> {
+    try {
+      // 1. Validate input
+      // 2. Execute business logic
+      // 3. Return result
+      return result;
+    } catch (error) {
+      // Error handling
+      throw new Error('error message');
+    }
+  }
+}
+```
+
+### Utility Pattern
+```typescript
+/**
+ * Method description.
+ * @param param Description of the parameter
+ * @returns Description of the return value
+ */
+export const utilityFunction = (param: ParamType): ReturnType => {
+  // Implementation
+  return result;
+};
+```
+
+## Development Tools
+
+- **Package Manager**: **pnpm** (recommended for speed and efficiency)
+- **Code Formatter**: **Prettier** for consistent formatting
+- **Linter**: **ESLint** with TypeScript support
+- **Monorepo Management**: **Turbo** for optimized build and development workflows
+
+## Best Practices
+
+1. **Consistency**: Follow the established patterns and conventions
+2. **Readability**: Write clear, self-documenting code
+3. **Maintainability**: Use proper abstractions and modular design
+4. **Security**: Implement proper input validation and sanitization
+5. **Performance**: Consider memory usage and optimization
+6. **Testing**: Write comprehensive unit and integration tests
+
+## Team Guidelines
+
+- **Code Reviews**: All reviews must be in Korean
+- **Documentation**: Use JSDoc for public APIs
+- **Error Messages**: Provide meaningful error messages in Korean
+- **Comments**: Explain "why" not "what" in Korean
+- **Naming**: Use descriptive English names for variables and functions
+
+Remember: Always prioritize code readability, maintainability, and security while following these established patterns and conventions.

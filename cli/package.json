@@ -1,0 +1,54 @@
+{
+  "name": "@contract-js/cli",
+  "version": "0.0.1",
+  "bin": {
+    "contract-js": "bin/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs --out-dir bin && echo '#!/usr/bin/env node' | cat - bin/index.js > temp && mv temp bin/index.js",
+    "clean": "rm -rf bin",
+    "link": "pnpm build && pnpm link --global",
+    "link:local": "pnpm build && pnpm link",
+    "unlink": "pnpm unlink --global"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/findup-sync": "^4.0.5",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-turbo": "^2.5.0",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.40.0"
+  },
+  "dependencies": {
+    "@contract-js/core": "workspace:*",
+    "cac": "^6.7.14",
+    "commander": "^14.0.0",
+    "findup-sync": "^5.0.0",
+    "picocolors": "^1.1.1",
+    "type-fest": "^5.0.0",
+    "zod": "^4.1.8"
+  },
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jeonhui/contract-js.git",
+    "directory": "cli"
+  },
+  "keywords": [
+    "typescript",
+    "cli",
+    "contract",
+    "generator"
+  ],
+  "author": "Jeonhui",
+  "license": "MIT"
+}
