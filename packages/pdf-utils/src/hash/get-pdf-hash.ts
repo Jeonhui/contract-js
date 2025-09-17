@@ -6,9 +6,9 @@ export type CreatePdfHashProps = {
   digestEncoding?: BinaryToTextEncoding;
 };
 
-export const generatePdfHash = (
+export const getPdfHash = (
   pdfBuffer: Buffer,
-  { hashAlgorithm = 'sha256', hashOptions, digestEncoding = 'hex' }: CreatePdfHashProps,
+  { hashAlgorithm = 'sha256', hashOptions, digestEncoding = 'hex' }: CreatePdfHashProps = {},
 ): string => {
   return createHash(hashAlgorithm, hashOptions).update(pdfBuffer).digest(digestEncoding);
 };

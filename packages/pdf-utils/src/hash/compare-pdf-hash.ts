@@ -1,4 +1,4 @@
-import { generatePdfHash, CreatePdfHashProps } from './generate-pdf-hash';
+import { getPdfHash, CreatePdfHashProps } from './get-pdf-hash';
 
 export type ComparePdfHashProps = {
   expectedHash: string;
@@ -10,7 +10,7 @@ export const comparePdfHash = (
   pdfBuffer: Buffer,
   { expectedHash, pdfHashProps = {}, throwOnMismatch = false }: ComparePdfHashProps,
 ): boolean => {
-  const hash = generatePdfHash(pdfBuffer, pdfHashProps);
+  const hash = getPdfHash(pdfBuffer, pdfHashProps);
   const match = hash === expectedHash;
   if (!match && throwOnMismatch) throw new Error('PDF hash mismatch');
   return match;
