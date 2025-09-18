@@ -20,6 +20,26 @@
 
 Generate professional PDF contracts from EJS templates with complete digital signature workflow including key generation, signing, and verification.
 
+## ⌨️ CLI
+
+### `@contract-js/cli`
+
+[![npm version](https://img.shields.io/npm/v/@contract-js/cli?style=flat-square)](https://www.npmjs.com/package/@contract-js/cli)
+
+**Command Line Interface for Contract Generation**
+
+A powerful CLI tool for generating PDF contracts from EJS templates with complete digital signature workflow.
+
+- **Contract Generation** – Generate PDF contracts from EJS templates
+- **Digital Signing** – Create digital signatures for PDF contracts
+- **Signature Verification** – Verify digital signatures against PDF hashes
+- **File Hashing** – Generate cryptographic hashes for files
+- **Template Support** – Support for EJS templates with dynamic data
+- **JSON Data Loading** – Load template data from JSON files
+- **Key Management** – Generate and manage RSA key pairs
+- **Output Management** – Flexible output directory and file naming
+
+
 ## 📦 Packages
 
 ### `@contract-js/core`
@@ -63,18 +83,36 @@ Utility functions for PDF hash generation and comparison.
 ### CLI Usage
 
 ```bash
-# Install globally
-npm install -g contract-js
+# Install CLI globally
+npm install -g @contract-js/cli
 
-# Generate PDF contract
+# Generate PDF contract from EJS template
 contract-js generate template.ejs -d data.json -o contract.pdf
 
-# Sign contract
+# Generate file hash
+contract-js hash contract.pdf
+
+# Sign contract with digital signature
 contract-js sign contract.pdf -o ./keys
 
-# Verify signature
+# Verify digital signature
 contract-js verify contract.pdf -p ./keys/public.pem -s ./keys/signature.txt
+
+# Show help
+contract-js --help
+
+# Show version
+contract-js --version
 ```
+
+#### CLI Commands
+
+| Command | Description | Options |
+|---------|-------------|---------|
+| `generate <template>` | Generate PDF from EJS template | `-d, --data <path>` - JSON data file path<br>`-o, --output <path>` - Output PDF file path |
+| `hash <filePath>` | Generate file hash | `-a, --algorithm <algo>` - Hash algorithm (default: sha256) |
+| `sign <filePath>` | Sign PDF with digital signature | `-a, --algorithm <algo>` - Hash algorithm<br>`-o, --output <dir>` - Keys output directory<br>`-k, --key <path>` - Private key file path |
+| `verify <filePath>` | Verify digital signature | `-a, --algorithm <algo>` - Hash algorithm<br>`-p, --public-key <path>` - Public key file path<br>`-s, --signature <path>` - Signature file path |
 
 ### Programmatic Usage
 
@@ -107,6 +145,9 @@ const isValid = verifyContractSignature({
 ## 📦 Installation
 
 ```bash
+# Install CLI package
+npm install @contract-js/cli
+
 # Install all packages
 npm install @contract-js/core @contract-js/crypto @contract-js/pdf-utils
 
@@ -127,6 +168,8 @@ npm install @contract-js/pdf-utils
 | **Puppeteer**         | HTML to PDF conversion                      |
 | **pdf-lib**           | PDF manipulation                            |
 | **EJS**               | Template engine                             |
+| **CAC**               | CLI framework for command parsing           |
+| **@clack/prompts**    | Interactive CLI prompts and UI              |
 
 ---
 
