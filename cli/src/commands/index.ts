@@ -1,2 +1,4 @@
 export * from './generate.command';
-export * from './get-hash.command';
+export * from './hash.command';
+export * from './sign.command';
+export * from './verify.command';

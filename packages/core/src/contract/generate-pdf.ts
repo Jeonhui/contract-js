@@ -21,6 +21,7 @@ export const generatePdf = async ({
 }): Promise<{
   pdfBuffer: Buffer;
   pdfHash: string;
+  pdfKB: number;
 }> => {
   let templateContent;
   try {
@@ -51,8 +52,10 @@ export const generatePdf = async ({
     },
   });
   const pdfHash = getPdfHash(pdfBuffer);
+  const pdfKB = pdfBuffer.length / 1024;
   return {
-    pdfBuffer,
     pdfHash,
+    pdfBuffer,
+    pdfKB,
   };
 };

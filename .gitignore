@@ -347,3 +347,6 @@ $RECYCLE.BIN/
 ### Turbo ###
 # Turborepo task cache
 .turbo
+
+### Contract JS ###
+keys
