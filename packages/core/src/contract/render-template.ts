@@ -1,6 +1,4 @@
 import ejs from 'ejs';
-import { OpenMode } from 'node:fs';
-import { Abortable } from 'node:events';
 
 export type TemplateData = {
   [key: string]: string | number;

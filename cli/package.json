@@ -1,6 +1,6 @@
 {
   "name": "@contract-js/cli",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "bin": {
     "contract-js": "bin/index.js"
   },
@@ -9,7 +9,9 @@
     "clean": "rm -rf bin",
     "link": "pnpm build && pnpm link --global",
     "link:local": "pnpm build && pnpm link",
-    "unlink": "pnpm unlink --global"
+    "unlink": "pnpm unlink --global",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
@@ -53,5 +55,5 @@
     "generator"
   ],
   "author": "Jeonhui",
-  "license": "MIT"
+  "license": "Apache-2.0"
 }
