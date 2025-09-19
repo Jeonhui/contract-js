@@ -4,11 +4,13 @@ import { Abortable } from 'node:events';
 import { renderTemplate, TemplateData } from './render-template';
 import { generateHtmlToPdf } from './generate-html-to-pdf';
 import { getPdfHash } from '@contract-js/pdf-utils';
+import { PDFOptions } from 'puppeteer';
 
 export const generatePdf = async ({
   templatePath,
   templateOptions = 'utf-8',
   templateData = {},
+  pdfConfig = {},
 }: {
   templatePath: string;
   templateOptions?:
@@ -18,6 +20,10 @@ export const generatePdf = async ({
       } & Abortable)
     | BufferEncoding;
   templateData: TemplateData;
+  pdfConfig: {
+    options?: PDFOptions;
+    metadata?: object;
+  };
 }): Promise<{
   pdfBuffer: Buffer;
   pdfHash: string;
@@ -35,9 +41,8 @@ export const generatePdf = async ({
     templateContent,
     templateData,
   });
-  const pdfBuffer = await generateHtmlToPdf({
-    html: contractHtml,
-    pdfOptions: {
+  const defaultPdfConfig = {
+    options: {
       format: 'A4',
       printBackground: true,
       margin: {
@@ -46,10 +51,15 @@ export const generatePdf = async ({
         left: '15mm',
         right: '15mm',
       },
-    },
-    metadata: {
-      createdAt: new Date().toISOString(),
-    },
+    } as PDFOptions,
+    metadata: {},
+  };
+  const pdfOptions = { ...defaultPdfConfig.options, ...pdfConfig.options };
+  const pdfMetadata = { createdAt: new Date().toISOString(), ...pdfConfig.metadata };
+  const pdfBuffer = await generateHtmlToPdf({
+    html: contractHtml,
+    pdfOptions: pdfOptions,
+    metadata: pdfMetadata,
   });
   const pdfHash = getPdfHash(pdfBuffer);
   const pdfKB = pdfBuffer.length / 1024;

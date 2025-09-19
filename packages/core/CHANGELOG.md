@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 0.2.0
+
+### Minor Changes
+
+- Support pdfConfig in generatePdf function
+
 ## 0.1.0
 
 ### Minor Changes
