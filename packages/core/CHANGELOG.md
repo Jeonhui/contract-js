@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.0.0
+
+### Major Changes
+
+- Release a Major Version
+
 ## 0.2.0
 
 ### Minor Changes

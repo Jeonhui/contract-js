@@ -1,5 +1,14 @@
 # @contract-js/cli
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @contract-js/pdf-utils@1.0.0
+  - @contract-js/crypto@1.0.0
+  - @contract-js/core@1.0.0
+
 ## 0.1.1
 
 ### Patch Changes

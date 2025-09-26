@@ -1,7 +1,7 @@
 import ejs from 'ejs';
 
 export type TemplateData = {
-  [key: string]: string | number;
+  [key: string]: string | number | Date | object;
 };
 
 export const renderTemplate = async ({
@@ -13,8 +13,6 @@ export const renderTemplate = async ({
 }): Promise<string> => {
   try {
     return ejs.render(templateContent, {
-      ...templateData,
-      // 유틸리티 함수들
       formatDate: (date: string | Date) => {
         const d = new Date(date);
         return d.toLocaleDateString('ko-KR', {
@@ -29,6 +27,7 @@ export const renderTemplate = async ({
           currency,
         }).format(amount);
       },
+      ...templateData,
     });
   } catch (error) {
     throw new Error(
