@@ -1,5 +1,16 @@
 # @contract-js/cli
 
+## 1.0.0
+
+### Major Changes
+
+- Release a Major Version (cli) & patch core package
+
+### Patch Changes
+
+- Updated dependencies
+  - @contract-js/core@1.0.1
+
 ## 0.1.2
 
 ### Patch Changes
