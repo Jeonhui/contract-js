@@ -48,11 +48,13 @@ A powerful CLI tool for generating PDF contracts from EJS templates with complet
 
 **PDF Contract Generation from EJS Templates**
 
-Core functionality for generating PDF contracts from EJS templates with digital signature support.
+Core functionality for generating PDF contracts from EJS templates with modular template loading and PDF generation.
 
-- **PDF Generation** – Convert EJS templates to PDF documents
-- **Template Rendering** – Render EJS templates with dynamic data
-- **Watermark Support** – Add watermarks to PDF documents
+- **Template Loading** – Load EJS templates from file system with flexible options
+- **PDF Generation** – Convert EJS templates to PDF documents with configurable options
+- **Template Rendering** – Render EJS templates with dynamic data and utility functions
+- **PDF Configuration** – Customize PDF format, margins, metadata, and background printing
+- **Hash Generation** – Generate cryptographic hashes for PDF documents
 
 ### `@contract-js/crypto`
 
@@ -117,13 +119,39 @@ contract-js --version
 ### Programmatic Usage
 
 ```typescript
-import { generatePdf } from '@contract-js/core';
+import { loadTemplate, generatePdf } from '@contract-js/core';
 import { signContract, verifyContractSignature } from '@contract-js/crypto';
 
-// Generate PDF
-const result = await generatePdf({
+// Load EJS template
+const templateContent = await loadTemplate({
   templatePath: './template.ejs',
-  templateData: { title: 'Service Agreement' }
+});
+
+// Generate PDF from template
+const result = await generatePdf({
+  templateContent,
+  templateData: { 
+    title: 'Service Agreement',
+    clientName: 'John Doe',
+    amount: 5000,
+    date: new Date(),
+  },
+  pdfConfig: {
+    options: {
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '15mm',
+        right: '15mm',
+      },
+    },
+    metadata: {
+      title: 'Service Agreement',
+      author: 'Contract JS',
+    },
+  },
 });
 
 // Sign PDF

@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.0.2
+
+### Patch Changes
+
+- refactor: modularize template loading and PDF generation
+
 ## 1.0.1
 
 ### Patch Changes

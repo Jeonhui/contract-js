@@ -1,24 +1,14 @@
-import { readFile } from 'node:fs/promises';
-import { OpenMode } from 'node:fs';
-import { Abortable } from 'node:events';
 import { renderTemplate, TemplateData } from './render-template';
 import { generateHtmlToPdf } from './generate-html-to-pdf';
 import { getPdfHash } from '@contract-js/pdf-utils';
 import { PDFOptions } from 'puppeteer';
 
 export const generatePdf = async ({
-  templatePath,
-  templateOptions = 'utf-8',
+  templateContent,
   templateData = {},
   pdfConfig = {},
 }: {
-  templatePath: string;
-  templateOptions?:
-    | ({
-        encoding: BufferEncoding;
-        flag?: OpenMode | undefined;
-      } & Abortable)
-    | BufferEncoding;
+  templateContent: string;
   templateData: TemplateData;
   pdfConfig: {
     options?: PDFOptions;
@@ -29,14 +19,6 @@ export const generatePdf = async ({
   pdfHash: string;
   pdfKB: number;
 }> => {
-  let templateContent;
-  try {
-    templateContent = await readFile(templatePath, templateOptions);
-  } catch (error) {
-    throw new Error(
-      `Failed to read template file: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    );
-  }
   const contractHtml = await renderTemplate({
     templateContent,
     templateData,

@@ -111,10 +111,17 @@ var generateCommand = (cli) => {
         });
       }
       await (0, import_promises2.mkdir)((0, import_node_path.dirname)(outputPath), { recursive: true });
+      start(import_picocolors.default.blue(`\u{1F4C2} Loading template from ${import_picocolors.default.cyan(templatePath)}...`));
+      const templateContent = await (0, import_core.loadTemplate)({
+        templatePath
+      });
+      stop();
+      p.log.success(import_picocolors.default.green(`\u2713 Template loaded successfully`));
       start(import_picocolors.default.blue(`\u{1F504} Generating ${import_picocolors.default.cyan(outputFile)}...`));
       const { pdfBuffer, pdfHash, pdfKB } = await (0, import_core.generatePdf)({
-        templatePath,
-        templateData
+        templateContent,
+        templateData,
+        pdfConfig: {}
       });
       await (0, import_promises.writeFile)(outputPath, pdfBuffer);
       stop();

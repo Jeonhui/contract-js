@@ -2,7 +2,7 @@ import { CAC } from 'cac';
 import { z } from 'zod';
 import * as p from '@clack/prompts';
 import color from 'picocolors';
-import { generatePdf } from '@contract-js/core';
+import { generatePdf, loadTemplate } from '@contract-js/core';
 import { writeFile, readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
@@ -98,11 +98,19 @@ export const generateCommand = (cli: CAC) => {
         }
 
         await mkdir(dirname(outputPath), { recursive: true });
-        start(color.blue(`🔄 Generating ${color.cyan(outputFile)}...`));
 
-        const { pdfBuffer, pdfHash, pdfKB } = await generatePdf({
+        start(color.blue(`📂 Loading template from ${color.cyan(templatePath)}...`));
+        const templateContent = await loadTemplate({
           templatePath,
+        });
+        stop();
+        p.log.success(color.green(`✓ Template loaded successfully`));
+
+        start(color.blue(`🔄 Generating ${color.cyan(outputFile)}...`));
+        const { pdfBuffer, pdfHash, pdfKB } = await generatePdf({
+          templateContent,
           templateData,
+          pdfConfig: {},
         });
 
         await writeFile(outputPath, pdfBuffer);

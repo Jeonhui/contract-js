@@ -1,5 +1,13 @@
 # @contract-js/cli
 
+## 1.0.1
+
+### Patch Changes
+
+- refactor: modularize template loading and PDF generation
+- Updated dependencies
+  - @contract-js/core@1.0.2
+
 ## 1.0.0
 
 ### Major Changes
