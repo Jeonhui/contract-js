@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.0.4
+
+### Patch Changes
+
+- Update options & Separate types
+
 ## 1.0.3
 
 ### Patch Changes

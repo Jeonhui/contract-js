@@ -1,21 +1,15 @@
 import { readFile } from 'node:fs/promises';
-import { OpenMode } from 'node:fs';
-import { Abortable } from 'node:events';
+import { TemplateReadOptions } from '../types';
 
 export const loadTemplate = async ({
   templatePath,
-  templateOptions = 'utf-8',
+  templateReadOptions = 'utf-8',
 }: {
   templatePath: string;
-  templateOptions?:
-    | ({
-        encoding: BufferEncoding;
-        flag?: OpenMode | undefined;
-      } & Abortable)
-    | BufferEncoding;
+  templateReadOptions?: TemplateReadOptions;
 }): Promise<string> => {
   try {
-    return await readFile(templatePath, templateOptions);
+    return await readFile(templatePath, templateReadOptions);
   } catch (error) {
     throw new Error(
       `Failed to read template file: ${error instanceof Error ? error.message : 'Unknown error'}`,
