@@ -1,5 +1,12 @@
 # @contract-js/cli
 
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies [dab1d70]
+  - @contract-js/core@1.0.3
+
 ## 1.0.1
 
 ### Patch Changes

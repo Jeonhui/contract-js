@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.0.3
+
+### Patch Changes
+
+- dab1d70: Update PDF Result Type
+
 ## 1.0.2
 
 ### Patch Changes
