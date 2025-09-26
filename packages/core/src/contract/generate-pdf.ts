@@ -3,6 +3,12 @@ import { generateHtmlToPdf } from './generate-html-to-pdf';
 import { getPdfHash } from '@contract-js/pdf-utils';
 import { PDFOptions } from 'puppeteer';
 
+export type PDFResult = {
+  pdfBuffer: Buffer;
+  pdfHash: string;
+  pdfKB: number;
+};
+
 export const generatePdf = async ({
   templateContent,
   templateData = {},
@@ -14,11 +20,7 @@ export const generatePdf = async ({
     options?: PDFOptions;
     metadata?: object;
   };
-}): Promise<{
-  pdfBuffer: Buffer;
-  pdfHash: string;
-  pdfKB: number;
-}> => {
+}): Promise<PDFResult> => {
   const contractHtml = await renderTemplate({
     templateContent,
     templateData,
