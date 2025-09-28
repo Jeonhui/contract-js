@@ -2,7 +2,7 @@ import { renderTemplate } from './render-template';
 import { generateHtmlToPdf } from './generate-html-to-pdf';
 import { getPdfHash } from '@contract-js/pdf-utils';
 import { PDFOptions } from 'puppeteer';
-import { PDFResult, TemplateData, TemplateOptions } from '../types';
+import { PDFMetadata, PDFResult, TemplateData, TemplateOptions } from '../types';
 
 export const generatePdf = async ({
   templateContent,
@@ -15,7 +15,7 @@ export const generatePdf = async ({
   templateOptions?: TemplateOptions;
   pdfConfig: {
     options?: PDFOptions;
-    metadata?: object;
+    metadata?: PDFMetadata;
   };
 }): Promise<PDFResult> => {
   const contractHtml = await renderTemplate({
@@ -37,7 +37,7 @@ export const generatePdf = async ({
     metadata: {},
   };
   const pdfOptions = { ...defaultPdfConfig.options, ...pdfConfig.options };
-  const pdfMetadata = { createdAt: new Date().toISOString(), ...pdfConfig.metadata };
+  const pdfMetadata = pdfConfig.metadata ?? {};
   const pdfBuffer = await generateHtmlToPdf({
     html: contractHtml,
     pdfOptions: pdfOptions,

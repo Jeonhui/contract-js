@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.1.0
+
+### Minor Changes
+
+- Update to use PDF Metadata
+
 ## 1.0.4
 
 ### Patch Changes
