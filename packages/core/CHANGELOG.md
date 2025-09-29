@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.1.2
+
+### Patch Changes
+
+- Update metadata utils & config
+
 ## 1.1.1
 
 ### Patch Changes

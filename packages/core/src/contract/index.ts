@@ -1,4 +1,2 @@
-export * from './render-template';
-export * from './generate-html-to-pdf';
-export * from './generate-pdf';
-export * from './load-template';
+export { generatePdf } from './generate-pdf';
+export { loadTemplate } from './load-template';

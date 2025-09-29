@@ -1,5 +1,13 @@
 # @contract-js/cli
 
+## 1.0.6
+
+### Patch Changes
+
+- Update metadata utils & config
+- Updated dependencies
+  - @contract-js/core@1.1.2
+
 ## 1.0.5
 
 ### Patch Changes

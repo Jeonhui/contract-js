@@ -2,7 +2,7 @@ import { CAC } from 'cac';
 import { z } from 'zod';
 import * as p from '@clack/prompts';
 import color from 'picocolors';
-import { generatePdf, loadTemplate } from '@contract-js/core';
+import { generatePdf, getPdfMetadata, loadTemplate } from '@contract-js/core';
 import { writeFile, readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
@@ -110,10 +110,13 @@ export const generateCommand = (cli: CAC) => {
         const { pdfBuffer, pdfHash, pdfKB } = await generatePdf({
           templateContent,
           templateData,
-          pdfConfig: {},
         });
 
         await writeFile(outputPath, pdfBuffer);
+        stop();
+
+        start(color.green('🔄 Extracting PDF metadata...'));
+        const metadata = await getPdfMetadata(pdfBuffer);
         stop();
 
         p.log.success(color.green(`✨ Contract generated successfully!`));
@@ -121,6 +124,32 @@ export const generateCommand = (cli: CAC) => {
         p.log.info(color.gray(`   📏 Size: ${color.white(pdfKB.toFixed(2))} KB`));
         p.log.info(color.gray(`   🔐 Hash: ${color.white(pdfHash)}`));
         p.log.info(color.gray(`   📍 Path: ${color.cyan(outputPath)}`));
+        if (metadata.title) {
+          p.log.info(color.gray(`   📝 Title: ${color.white(metadata.title)}`));
+        }
+        if (metadata.author) {
+          p.log.info(color.gray(`   👤 Author: ${color.white(metadata.author)}`));
+        }
+        if (metadata.subject) {
+          p.log.info(color.gray(`   📄 Subject: ${color.white(metadata.subject)}`));
+        }
+        if (metadata.keywords && metadata.keywords.length > 0) {
+          p.log.info(color.gray(`   🏷️ Keywords: ${color.white(metadata.keywords.join(', '))}`));
+        }
+        if (metadata.creator) {
+          p.log.info(color.gray(`   🛠️Creator: ${color.white(metadata.creator)}`));
+        }
+        if (metadata.producer) {
+          p.log.info(color.gray(`   🏭 Producer: ${color.white(metadata.producer)}`));
+        }
+        if (metadata.createDate) {
+          p.log.info(
+            color.gray(`   📅 Created: ${color.white(metadata.createDate.toISOString())}`),
+          );
+        }
+        if (metadata.modDate) {
+          p.log.info(color.gray(`   📅 Modified: ${color.white(metadata.modDate.toISOString())}`));
+        }
 
         p.outro(color.green('🎉 All done! Your contract is ready to use.'));
         process.exit(0);

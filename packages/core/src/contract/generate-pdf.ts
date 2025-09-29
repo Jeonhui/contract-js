@@ -13,7 +13,7 @@ export const generatePdf = async ({
   templateContent: string;
   templateData: TemplateData;
   templateOptions?: TemplateOptions;
-  pdfConfig: {
+  pdfConfig?: {
     options?: PDFOptions;
     metadata?: PDFMetadata;
   };
@@ -34,10 +34,13 @@ export const generatePdf = async ({
         right: '15mm',
       },
     } as PDFOptions,
-    metadata: {},
   };
   const pdfOptions = { ...defaultPdfConfig.options, ...pdfConfig.options };
-  const pdfMetadata = pdfConfig.metadata ?? {};
+  const defaultMetadata = {
+    creator: 'Contract-JS Generator',
+    producer: 'Contract-JS PDF Engine',
+  };
+  const pdfMetadata = { ...defaultMetadata, ...pdfConfig.metadata };
   const pdfBuffer = await generateHtmlToPdf({
     html: contractHtml,
     pdfOptions: pdfOptions,

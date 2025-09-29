@@ -1,6 +1,6 @@
 import { cac } from 'cac';
 import { getPackageJson } from './utils/';
-import { generateCommand, hashCommand, signCommand, verifyCommand } from './commands';
+import { generateCommand, hashCommand, metadataCommand, signCommand, verifyCommand } from './commands';
 
 async function main() {
   const packageJson = getPackageJson();
@@ -13,6 +13,7 @@ async function main() {
   // Commands
   generateCommand(CLI);
   hashCommand(CLI);
+  metadataCommand(CLI);
   signCommand(CLI);
   verifyCommand(CLI);
 

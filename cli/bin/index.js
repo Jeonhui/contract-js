@@ -120,16 +120,44 @@ var generateCommand = (cli) => {
       start(import_picocolors.default.blue(`\u{1F504} Generating ${import_picocolors.default.cyan(outputFile)}...`));
       const { pdfBuffer, pdfHash, pdfKB } = await (0, import_core.generatePdf)({
         templateContent,
-        templateData,
-        pdfConfig: {}
+        templateData
       });
       await (0, import_promises.writeFile)(outputPath, pdfBuffer);
+      stop();
+      start(import_picocolors.default.green("\u{1F504} Extracting PDF metadata..."));
+      const metadata = await (0, import_core.getPdfMetadata)(pdfBuffer);
       stop();
       p.log.success(import_picocolors.default.green(`\u2728 Contract generated successfully!`));
       p.log.info(import_picocolors.default.gray(`   \u{1F4C4} File: ${import_picocolors.default.cyan(outputFile)}`));
       p.log.info(import_picocolors.default.gray(`   \u{1F4CF} Size: ${import_picocolors.default.white(pdfKB.toFixed(2))} KB`));
       p.log.info(import_picocolors.default.gray(`   \u{1F510} Hash: ${import_picocolors.default.white(pdfHash)}`));
       p.log.info(import_picocolors.default.gray(`   \u{1F4CD} Path: ${import_picocolors.default.cyan(outputPath)}`));
+      if (metadata.title) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F4DD} Title: ${import_picocolors.default.white(metadata.title)}`));
+      }
+      if (metadata.author) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F464} Author: ${import_picocolors.default.white(metadata.author)}`));
+      }
+      if (metadata.subject) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F4C4} Subject: ${import_picocolors.default.white(metadata.subject)}`));
+      }
+      if (metadata.keywords && metadata.keywords.length > 0) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F3F7}\uFE0F Keywords: ${import_picocolors.default.white(metadata.keywords.join(", "))}`));
+      }
+      if (metadata.creator) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F6E0}\uFE0FCreator: ${import_picocolors.default.white(metadata.creator)}`));
+      }
+      if (metadata.producer) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F3ED} Producer: ${import_picocolors.default.white(metadata.producer)}`));
+      }
+      if (metadata.createDate) {
+        p.log.info(
+          import_picocolors.default.gray(`   \u{1F4C5} Created: ${import_picocolors.default.white(metadata.createDate.toISOString())}`)
+        );
+      }
+      if (metadata.modDate) {
+        p.log.info(import_picocolors.default.gray(`   \u{1F4C5} Modified: ${import_picocolors.default.white(metadata.modDate.toISOString())}`));
+      }
       p.outro(import_picocolors.default.green("\u{1F389} All done! Your contract is ready to use."));
       process.exit(0);
     } catch (error) {
@@ -208,23 +236,106 @@ var hashCommand = (cli) => {
   });
 };
 
-// src/commands/sign.command.ts
+// src/commands/metadata.command.ts
 var import_zod3 = require("zod");
 var p3 = __toESM(require("@clack/prompts"));
 var import_picocolors3 = __toESM(require("picocolors"));
 var import_promises4 = require("fs/promises");
-var import_promises5 = require("fs/promises");
-var import_pdf_utils2 = require("@contract-js/pdf-utils");
-var import_crypto = require("@contract-js/crypto");
-var signCommandOptionsSchema = import_zod3.z.object({
+var import_core2 = require("@contract-js/core");
+var metadataCommandOptionsSchema = import_zod3.z.object({
   contractPath: import_zod3.z.string().regex(/\.pdf$/, {
     message: "Contract file must be a PDF file with .pdf extension."
+  }).nonempty("Contract file path is required")
+});
+var metadataCommand = (cli) => {
+  cli.command("metadata <filePath>", "Get metadata from a contract PDF file").example("contract-js metadata contract.pdf").action(async (ctr) => {
+    p3.intro(
+      import_picocolors3.default.bgBlue(import_picocolors3.default.white(" \u{1F4CB} metadata ")) + import_picocolors3.default.gray(" - extract metadata from PDF files")
+    );
+    const options = metadataCommandOptionsSchema.parse({
+      contractPath: ctr
+    });
+    const { contractPath } = options;
+    try {
+      p3.log.step(import_picocolors3.default.blue("\u2699\uFE0F  Configuration"));
+      p3.log.info(import_picocolors3.default.gray(`   \u{1F4C4} File: ${import_picocolors3.default.cyan(contractPath)}`));
+      p3.log.step(import_picocolors3.default.yellow("\u{1F4C2} Reading PDF file..."));
+      const fileBuffer = await (0, import_promises4.readFile)(contractPath);
+      p3.log.success(import_picocolors3.default.green(`\u2713 File loaded successfully`));
+      p3.log.info(
+        import_picocolors3.default.gray(`   \u{1F4CF} Size: ${import_picocolors3.default.white((fileBuffer.length / 1024).toFixed(2))} KB`)
+      );
+      const { start, stop } = p3.spinner();
+      start(import_picocolors3.default.green("\u{1F504} Extracting PDF metadata..."));
+      const metadata = await (0, import_core2.getPdfMetadata)(fileBuffer);
+      stop();
+      p3.log.success(import_picocolors3.default.green(`\u2728 Metadata extracted successfully!`));
+      p3.log.step(import_picocolors3.default.blue("\u{1F4CB} PDF Metadata"));
+      if (metadata.title) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F4DD} Title: ${import_picocolors3.default.white(metadata.title)}`));
+      }
+      if (metadata.author) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F464} Author: ${import_picocolors3.default.white(metadata.author)}`));
+      }
+      if (metadata.subject) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F4C4} Subject: ${import_picocolors3.default.white(metadata.subject)}`));
+      }
+      if (metadata.keywords && metadata.keywords.length > 0) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F3F7}\uFE0F Keywords: ${import_picocolors3.default.white(metadata.keywords.join(", "))}`));
+      }
+      if (metadata.creator) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F6E0}\uFE0FCreator: ${import_picocolors3.default.white(metadata.creator)}`));
+      }
+      if (metadata.producer) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F3ED} Producer: ${import_picocolors3.default.white(metadata.producer)}`));
+      }
+      if (metadata.createDate) {
+        p3.log.info(
+          import_picocolors3.default.gray(`   \u{1F4C5} Created: ${import_picocolors3.default.white(metadata.createDate.toISOString())}`)
+        );
+      }
+      if (metadata.modDate) {
+        p3.log.info(import_picocolors3.default.gray(`   \u{1F4C5} Modified: ${import_picocolors3.default.white(metadata.modDate.toISOString())}`));
+      }
+      const hasMetadata = metadata.title || metadata.author || metadata.subject || metadata.keywords?.length || metadata.creator || metadata.producer || metadata.createDate || metadata.modDate;
+      if (!hasMetadata) {
+        p3.log.warn(import_picocolors3.default.yellow(`\u26A0\uFE0F  No metadata found in this PDF file`));
+      }
+      p3.log.info(import_picocolors3.default.gray(`   \u{1F4C4} File: ${import_picocolors3.default.cyan(contractPath)}`));
+      p3.log.info(
+        import_picocolors3.default.gray(`   \u{1F4CF} Size: ${import_picocolors3.default.white((fileBuffer.length / 1024).toFixed(2))} KB`)
+      );
+      p3.outro(import_picocolors3.default.green("\u{1F389} Metadata extraction completed!"));
+      process.exit(0);
+    } catch (error) {
+      p3.log.error(
+        import_picocolors3.default.red(
+          `\u{1F4A5} Failed to extract metadata: ${error instanceof Error ? error.message : "Unknown error"}`
+        )
+      );
+      p3.outro(import_picocolors3.default.red("\u274C Process terminated due to error."));
+      process.exit(1);
+    }
+  });
+};
+
+// src/commands/sign.command.ts
+var import_zod4 = require("zod");
+var p4 = __toESM(require("@clack/prompts"));
+var import_picocolors4 = __toESM(require("picocolors"));
+var import_promises5 = require("fs/promises");
+var import_promises6 = require("fs/promises");
+var import_pdf_utils2 = require("@contract-js/pdf-utils");
+var import_crypto = require("@contract-js/crypto");
+var signCommandOptionsSchema = import_zod4.z.object({
+  contractPath: import_zod4.z.string().regex(/\.pdf$/, {
+    message: "Contract file must be a PDF file with .pdf extension."
   }).nonempty("Contract file path is required"),
-  algorithm: import_zod3.z.string().optional().default("sha256").refine((val) => ["sha1", "sha256", "sha384", "sha512"].includes(val), {
+  algorithm: import_zod4.z.string().optional().default("sha256").refine((val) => ["sha1", "sha256", "sha384", "sha512"].includes(val), {
     message: "Algorithm must be one of: sha1, sha256, sha384, sha512"
   }),
-  outputDir: import_zod3.z.string().optional().default("./keys"),
-  privateKeyPath: import_zod3.z.string().regex(/\.pem$/, {
+  outputDir: import_zod4.z.string().optional().default("./keys"),
+  privateKeyPath: import_zod4.z.string().regex(/\.pem$/, {
     message: "Private key file must be a PEM file with .pem extension."
   }).optional()
 });
@@ -234,8 +345,8 @@ var signCommand = (cli) => {
   }).option("-o, --output <output>", "Output directory for keys", {
     default: "./keys"
   }).option("-k, --key <key>", "Private key file path (PEM format)").example("contract-js sign contract.pdf").example("contract-js sign contract.pdf -a sha256").example("contract-js sign contract.pdf -o ./keys").example("contract-js sign contract.pdf -k ./keys/private.pem").action(async (ctr, opts) => {
-    p3.intro(
-      import_picocolors3.default.bgYellow(import_picocolors3.default.white(" \u270D\uFE0F  sign ")) + import_picocolors3.default.gray(" - Create digital signature for PDF contracts")
+    p4.intro(
+      import_picocolors4.default.bgYellow(import_picocolors4.default.white(" \u270D\uFE0F  sign ")) + import_picocolors4.default.gray(" - Create digital signature for PDF contracts")
     );
     const options = signCommandOptionsSchema.parse({
       contractPath: ctr,
@@ -245,70 +356,70 @@ var signCommand = (cli) => {
     });
     const { contractPath, algorithm, outputDir, privateKeyPath } = options;
     try {
-      p3.log.step(import_picocolors3.default.yellow("\u2699\uFE0F  Configuration"));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F4C4} Contract: ${import_picocolors3.default.cyan(contractPath)}`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F527} Algorithm: ${import_picocolors3.default.cyan(algorithm.toUpperCase())}`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F4C1} Keys output: ${import_picocolors3.default.cyan(outputDir)}`));
-      p3.log.info(
-        import_picocolors3.default.gray(
-          `   \u{1F511} Private key: ${privateKeyPath ? import_picocolors3.default.cyan(privateKeyPath) : import_picocolors3.default.yellow("Will generate new key")}`
+      p4.log.step(import_picocolors4.default.yellow("\u2699\uFE0F  Configuration"));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F4C4} Contract: ${import_picocolors4.default.cyan(contractPath)}`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F527} Algorithm: ${import_picocolors4.default.cyan(algorithm.toUpperCase())}`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F4C1} Keys output: ${import_picocolors4.default.cyan(outputDir)}`));
+      p4.log.info(
+        import_picocolors4.default.gray(
+          `   \u{1F511} Private key: ${privateKeyPath ? import_picocolors4.default.cyan(privateKeyPath) : import_picocolors4.default.yellow("Will generate new key")}`
         )
       );
-      p3.log.step(import_picocolors3.default.yellow("\u{1F4C2} Reading contract file..."));
-      const fileBuffer = await (0, import_promises4.readFile)(contractPath);
-      p3.log.success(import_picocolors3.default.green(`\u2713 Contract file loaded successfully`));
-      p3.log.info(
-        import_picocolors3.default.gray(`   \u{1F4CF} Size: ${import_picocolors3.default.white((fileBuffer.length / 1024).toFixed(2))} KB`)
+      p4.log.step(import_picocolors4.default.yellow("\u{1F4C2} Reading contract file..."));
+      const fileBuffer = await (0, import_promises5.readFile)(contractPath);
+      p4.log.success(import_picocolors4.default.green(`\u2713 Contract file loaded successfully`));
+      p4.log.info(
+        import_picocolors4.default.gray(`   \u{1F4CF} Size: ${import_picocolors4.default.white((fileBuffer.length / 1024).toFixed(2))} KB`)
       );
-      const { start: hashStart, stop: hashStop } = p3.spinner();
-      hashStart(import_picocolors3.default.yellow(`\u{1F504} Generating ${import_picocolors3.default.cyan(algorithm.toUpperCase())} hash...`));
+      const { start: hashStart, stop: hashStop } = p4.spinner();
+      hashStart(import_picocolors4.default.yellow(`\u{1F504} Generating ${import_picocolors4.default.cyan(algorithm.toUpperCase())} hash...`));
       const pdfHash = (0, import_pdf_utils2.getPdfHash)(fileBuffer, {
         hashAlgorithm: algorithm
       });
       hashStop();
-      p3.log.success(import_picocolors3.default.green(`\u2713 Hash generated: ${import_picocolors3.default.white(pdfHash.substring(0, 16))}...`));
+      p4.log.success(import_picocolors4.default.green(`\u2713 Hash generated: ${import_picocolors4.default.white(pdfHash.substring(0, 16))}...`));
       let publicKey;
       let privateKey;
       let keyGenerated = false;
       if (privateKeyPath) {
-        p3.log.step(import_picocolors3.default.yellow("\u{1F511} Loading existing private key..."));
+        p4.log.step(import_picocolors4.default.yellow("\u{1F511} Loading existing private key..."));
         try {
-          privateKey = await (0, import_promises4.readFile)(privateKeyPath, "utf-8");
-          p3.log.success(import_picocolors3.default.green(`\u2713 Private key loaded from ${import_picocolors3.default.cyan(privateKeyPath)}`));
-          const { start: keyStart, stop: keyStop } = p3.spinner();
-          keyStart(import_picocolors3.default.yellow("\u{1F511} Generating public key..."));
+          privateKey = await (0, import_promises5.readFile)(privateKeyPath, "utf-8");
+          p4.log.success(import_picocolors4.default.green(`\u2713 Private key loaded from ${import_picocolors4.default.cyan(privateKeyPath)}`));
+          const { start: keyStart, stop: keyStop } = p4.spinner();
+          keyStart(import_picocolors4.default.yellow("\u{1F511} Generating public key..."));
           const keyPair = (0, import_crypto.generateRsaKeyPairSync)();
           publicKey = keyPair.publicKey;
           keyStop();
-          p3.log.success(import_picocolors3.default.green(`\u2713 Public key generated`));
+          p4.log.success(import_picocolors4.default.green(`\u2713 Public key generated`));
         } catch (error) {
-          p3.log.error(
-            import_picocolors3.default.red(
+          p4.log.error(
+            import_picocolors4.default.red(
               `\u274C Failed to load private key: ${error instanceof Error ? error.message : "Unknown error"}`
             )
           );
-          p3.log.info(import_picocolors3.default.yellow("\u{1F504} Falling back to generating new key pair..."));
-          const { start: keyStart, stop: keyStop } = p3.spinner();
-          keyStart(import_picocolors3.default.yellow("\u{1F511} Generating RSA key pair..."));
+          p4.log.info(import_picocolors4.default.yellow("\u{1F504} Falling back to generating new key pair..."));
+          const { start: keyStart, stop: keyStop } = p4.spinner();
+          keyStart(import_picocolors4.default.yellow("\u{1F511} Generating RSA key pair..."));
           const keyPair = (0, import_crypto.generateRsaKeyPairSync)();
           publicKey = keyPair.publicKey;
           privateKey = keyPair.privateKey;
           keyStop();
           keyGenerated = true;
-          p3.log.success(import_picocolors3.default.green(`\u2713 RSA key pair generated`));
+          p4.log.success(import_picocolors4.default.green(`\u2713 RSA key pair generated`));
         }
       } else {
-        const { start: keyStart, stop: keyStop } = p3.spinner();
-        keyStart(import_picocolors3.default.yellow("\u{1F511} Generating RSA key pair..."));
+        const { start: keyStart, stop: keyStop } = p4.spinner();
+        keyStart(import_picocolors4.default.yellow("\u{1F511} Generating RSA key pair..."));
         const keyPair = (0, import_crypto.generateRsaKeyPairSync)();
         publicKey = keyPair.publicKey;
         privateKey = keyPair.privateKey;
         keyStop();
         keyGenerated = true;
-        p3.log.success(import_picocolors3.default.green(`\u2713 RSA key pair generated`));
+        p4.log.success(import_picocolors4.default.green(`\u2713 RSA key pair generated`));
       }
-      const { start: signStart, stop: signStop } = p3.spinner();
-      signStart(import_picocolors3.default.yellow("\u270D\uFE0F  Creating digital signature..."));
+      const { start: signStart, stop: signStop } = p4.spinner();
+      signStart(import_picocolors4.default.yellow("\u270D\uFE0F  Creating digital signature..."));
       const { signature, signedAt } = (0, import_crypto.signContract)({
         pdfHash,
         privateKey,
@@ -319,66 +430,66 @@ var signCommand = (cli) => {
       let savedPrivateKeyPath = void 0;
       const signaturePath = `${outputDir}/signature.txt`;
       if (keyGenerated) {
-        p3.log.step(import_picocolors3.default.yellow("\u{1F4BE} Saving keys..."));
-        await (0, import_promises5.mkdir)(outputDir, { recursive: true });
+        p4.log.step(import_picocolors4.default.yellow("\u{1F4BE} Saving keys..."));
+        await (0, import_promises6.mkdir)(outputDir, { recursive: true });
         savedPublicKeyPath = `${outputDir}/public.pem`;
         savedPrivateKeyPath = `${outputDir}/private.pem`;
-        await (0, import_promises4.writeFile)(savedPublicKeyPath, publicKey);
-        await (0, import_promises4.writeFile)(savedPrivateKeyPath, privateKey);
-        await (0, import_promises4.writeFile)(signaturePath, signature);
-        p3.log.success(import_picocolors3.default.green(`\u2713 Keys and signature saved successfully`));
+        await (0, import_promises5.writeFile)(savedPublicKeyPath, publicKey);
+        await (0, import_promises5.writeFile)(savedPrivateKeyPath, privateKey);
+        await (0, import_promises5.writeFile)(signaturePath, signature);
+        p4.log.success(import_picocolors4.default.green(`\u2713 Keys and signature saved successfully`));
       } else {
-        p3.log.step(import_picocolors3.default.yellow("\u{1F4BE} Saving signature..."));
-        await (0, import_promises5.mkdir)(outputDir, { recursive: true });
-        await (0, import_promises4.writeFile)(signaturePath, signature);
-        p3.log.success(import_picocolors3.default.green(`\u2713 Signature saved successfully`));
+        p4.log.step(import_picocolors4.default.yellow("\u{1F4BE} Saving signature..."));
+        await (0, import_promises6.mkdir)(outputDir, { recursive: true });
+        await (0, import_promises5.writeFile)(signaturePath, signature);
+        p4.log.success(import_picocolors4.default.green(`\u2713 Signature saved successfully`));
       }
-      p3.log.success(import_picocolors3.default.green(`\u2728 Contract signed successfully!`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F4C4} Contract: ${import_picocolors3.default.cyan(contractPath)}`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F510} Algorithm: ${import_picocolors3.default.white(algorithm.toUpperCase())}`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F194} Hash: ${import_picocolors3.default.white(pdfHash)}`));
-      p3.log.info(import_picocolors3.default.gray(`   \u270D\uFE0F  Signature: ${import_picocolors3.default.white(signature.substring(0, 32))}...`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F550} Signed at: ${import_picocolors3.default.white(signedAt.toISOString())}`));
-      p3.log.info(import_picocolors3.default.gray(`   \u{1F4C1} Output directory: ${import_picocolors3.default.cyan(outputDir)}`));
+      p4.log.success(import_picocolors4.default.green(`\u2728 Contract signed successfully!`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F4C4} Contract: ${import_picocolors4.default.cyan(contractPath)}`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F510} Algorithm: ${import_picocolors4.default.white(algorithm.toUpperCase())}`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F194} Hash: ${import_picocolors4.default.white(pdfHash)}`));
+      p4.log.info(import_picocolors4.default.gray(`   \u270D\uFE0F  Signature: ${import_picocolors4.default.white(signature.substring(0, 32))}...`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F550} Signed at: ${import_picocolors4.default.white(signedAt.toISOString())}`));
+      p4.log.info(import_picocolors4.default.gray(`   \u{1F4C1} Output directory: ${import_picocolors4.default.cyan(outputDir)}`));
       if (keyGenerated) {
-        p3.log.info(import_picocolors3.default.gray(`   \u{1F511} Public key: ${import_picocolors3.default.cyan(savedPublicKeyPath)}`));
-        p3.log.info(import_picocolors3.default.gray(`   \u{1F510} Private key: ${import_picocolors3.default.cyan(savedPrivateKeyPath)}`));
+        p4.log.info(import_picocolors4.default.gray(`   \u{1F511} Public key: ${import_picocolors4.default.cyan(savedPublicKeyPath)}`));
+        p4.log.info(import_picocolors4.default.gray(`   \u{1F510} Private key: ${import_picocolors4.default.cyan(savedPrivateKeyPath)}`));
       } else {
-        p3.log.info(import_picocolors3.default.gray(`   \u{1F511} Private key (provided): ${import_picocolors3.default.cyan(privateKeyPath)} `));
+        p4.log.info(import_picocolors4.default.gray(`   \u{1F511} Private key (provided): ${import_picocolors4.default.cyan(privateKeyPath)} `));
       }
-      p3.log.info(import_picocolors3.default.gray(`   \u270D\uFE0F  Signature: ${import_picocolors3.default.cyan(signaturePath)}`));
-      p3.outro(import_picocolors3.default.green("\u{1F389} Digital signature created successfully!"));
+      p4.log.info(import_picocolors4.default.gray(`   \u270D\uFE0F  Signature: ${import_picocolors4.default.cyan(signaturePath)}`));
+      p4.outro(import_picocolors4.default.green("\u{1F389} Digital signature created successfully!"));
       process.exit(0);
     } catch (error) {
-      p3.log.error(
-        import_picocolors3.default.red(
+      p4.log.error(
+        import_picocolors4.default.red(
           `\u{1F4A5} Failed to sign contract: ${error instanceof Error ? error.message : "Unknown error"}`
         )
       );
-      p3.outro(import_picocolors3.default.red("\u274C Process terminated due to error."));
+      p4.outro(import_picocolors4.default.red("\u274C Process terminated due to error."));
       process.exit(1);
     }
   });
 };
 
 // src/commands/verify.command.ts
-var import_zod4 = require("zod");
-var p4 = __toESM(require("@clack/prompts"));
-var import_picocolors4 = __toESM(require("picocolors"));
-var import_promises6 = require("fs/promises");
+var import_zod5 = require("zod");
+var p5 = __toESM(require("@clack/prompts"));
+var import_picocolors5 = __toESM(require("picocolors"));
+var import_promises7 = require("fs/promises");
 var import_pdf_utils3 = require("@contract-js/pdf-utils");
 var import_crypto2 = require("@contract-js/crypto");
-var verifyCommandOptionsSchema = import_zod4.z.object({
-  contractPath: import_zod4.z.string().regex(/\.pdf$/, {
+var verifyCommandOptionsSchema = import_zod5.z.object({
+  contractPath: import_zod5.z.string().regex(/\.pdf$/, {
     message: "Contract file must be a PDF file with .pdf extension."
   }).nonempty("Contract file path is required"),
-  algorithm: import_zod4.z.string().optional().default("sha256").refine((val) => ["sha1", "sha256", "sha384", "sha512"].includes(val), {
+  algorithm: import_zod5.z.string().optional().default("sha256").refine((val) => ["sha1", "sha256", "sha384", "sha512"].includes(val), {
     message: "Algorithm must be one of: sha1, sha256, sha384, sha512"
   }),
-  publicKeyPath: import_zod4.z.string().regex(/\.pem$/, {
+  publicKeyPath: import_zod5.z.string().regex(/\.pem$/, {
     message: "Public key file must be a PEM file with .pem extension."
   }).nonempty("Public key file path is required"),
-  signaturePath: import_zod4.z.string().regex(/\.txt$/, {
+  signaturePath: import_zod5.z.string().regex(/\.txt$/, {
     message: "Signature file must be a text file with .txt extension."
   }).nonempty("Signature file path is required")
 });
@@ -388,8 +499,8 @@ var verifyCommand = (cli) => {
   }).option("-p, --public-key <publicKey>", "Public key file path (PEM format)").option("-s, --signature <signature>", "Signature file path (TXT format)").example("contract-js verify contract.pdf -p ./keys/public.pem -s ./keys/signature.txt").example(
     "contract-js verify contract.pdf -a sha256 -p ./keys/public.pem -s ./keys/signature.txt"
   ).action(async (ctr, opts) => {
-    p4.intro(
-      import_picocolors4.default.bgMagenta(import_picocolors4.default.white(" \u{1F50D} verify ")) + import_picocolors4.default.gray(" - Verify digital signature of PDF contracts")
+    p5.intro(
+      import_picocolors5.default.bgMagenta(import_picocolors5.default.white(" \u{1F50D} verify ")) + import_picocolors5.default.gray(" - Verify digital signature of PDF contracts")
     );
     const options = verifyCommandOptionsSchema.parse({
       contractPath: ctr,
@@ -399,30 +510,30 @@ var verifyCommand = (cli) => {
     });
     const { contractPath, algorithm, publicKeyPath, signaturePath } = options;
     try {
-      p4.log.step(import_picocolors4.default.blue("\u2699\uFE0F  Configuration"));
-      p4.log.info(import_picocolors4.default.gray(`   \u{1F4C4} Contract: ${import_picocolors4.default.cyan(contractPath)}`));
-      p4.log.info(import_picocolors4.default.gray(`   \u{1F527} Algorithm: ${import_picocolors4.default.cyan(algorithm.toUpperCase())}`));
-      p4.log.info(import_picocolors4.default.gray(`   \u{1F511} Public key: ${import_picocolors4.default.cyan(publicKeyPath)}`));
-      p4.log.info(import_picocolors4.default.gray(`   \u270D\uFE0F Signature: ${import_picocolors4.default.cyan(signaturePath)}`));
-      p4.log.step(import_picocolors4.default.yellow("\u{1F4C2} Reading contract file..."));
-      const fileBuffer = await (0, import_promises6.readFile)(contractPath);
-      p4.log.success(import_picocolors4.default.green(`\u2713 Contract file loaded successfully`));
-      p4.log.info(
-        import_picocolors4.default.gray(`   \u{1F4CF} Size: ${import_picocolors4.default.white((fileBuffer.length / 1024).toFixed(2))} KB`)
+      p5.log.step(import_picocolors5.default.blue("\u2699\uFE0F  Configuration"));
+      p5.log.info(import_picocolors5.default.gray(`   \u{1F4C4} Contract: ${import_picocolors5.default.cyan(contractPath)}`));
+      p5.log.info(import_picocolors5.default.gray(`   \u{1F527} Algorithm: ${import_picocolors5.default.cyan(algorithm.toUpperCase())}`));
+      p5.log.info(import_picocolors5.default.gray(`   \u{1F511} Public key: ${import_picocolors5.default.cyan(publicKeyPath)}`));
+      p5.log.info(import_picocolors5.default.gray(`   \u270D\uFE0F Signature: ${import_picocolors5.default.cyan(signaturePath)}`));
+      p5.log.step(import_picocolors5.default.yellow("\u{1F4C2} Reading contract file..."));
+      const fileBuffer = await (0, import_promises7.readFile)(contractPath);
+      p5.log.success(import_picocolors5.default.green(`\u2713 Contract file loaded successfully`));
+      p5.log.info(
+        import_picocolors5.default.gray(`   \u{1F4CF} Size: ${import_picocolors5.default.white((fileBuffer.length / 1024).toFixed(2))} KB`)
       );
-      const publicKey = await (0, import_promises6.readFile)(publicKeyPath, "utf-8");
-      p4.log.success(import_picocolors4.default.green(`\u2713 Public key loaded successfully`));
-      const signature = await (0, import_promises6.readFile)(signaturePath, "utf-8");
-      p4.log.success(import_picocolors4.default.green(`\u2713 Signature loaded successfully`));
-      const { start: hashStart, stop: hashStop } = p4.spinner();
-      hashStart(import_picocolors4.default.blue(`\u{1F504} Generating ${import_picocolors4.default.cyan(algorithm.toUpperCase())} hash...`));
+      const publicKey = await (0, import_promises7.readFile)(publicKeyPath, "utf-8");
+      p5.log.success(import_picocolors5.default.green(`\u2713 Public key loaded successfully`));
+      const signature = await (0, import_promises7.readFile)(signaturePath, "utf-8");
+      p5.log.success(import_picocolors5.default.green(`\u2713 Signature loaded successfully`));
+      const { start: hashStart, stop: hashStop } = p5.spinner();
+      hashStart(import_picocolors5.default.blue(`\u{1F504} Generating ${import_picocolors5.default.cyan(algorithm.toUpperCase())} hash...`));
       const pdfHash = (0, import_pdf_utils3.getPdfHash)(fileBuffer, {
         hashAlgorithm: algorithm
       });
       hashStop();
-      p4.log.success(import_picocolors4.default.green(`\u2713 Hash generated: ${import_picocolors4.default.white(pdfHash.substring(0, 16))}...`));
-      const { start: verifyStart, stop: verifyStop } = p4.spinner();
-      verifyStart(import_picocolors4.default.blue("\u{1F50D} Verifying digital signature..."));
+      p5.log.success(import_picocolors5.default.green(`\u2713 Hash generated: ${import_picocolors5.default.white(pdfHash.substring(0, 16))}...`));
+      const { start: verifyStart, stop: verifyStop } = p5.spinner();
+      verifyStart(import_picocolors5.default.blue("\u{1F50D} Verifying digital signature..."));
       const isValid = (0, import_crypto2.verifyContractSignature)({
         algorithm,
         pdfHash,
@@ -431,38 +542,38 @@ var verifyCommand = (cli) => {
       });
       verifyStop();
       if (isValid) {
-        p4.log.success(import_picocolors4.default.green(`\u2728 Signature verification successful!`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F4C4} Contract: ${import_picocolors4.default.cyan(contractPath)}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F510} Algorithm: ${import_picocolors4.default.white(algorithm.toUpperCase())}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F194} Hash: ${import_picocolors4.default.white(pdfHash)}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u270D\uFE0F Signature: ${import_picocolors4.default.white(signature.substring(0, 32))}...`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F511} Public key: ${import_picocolors4.default.cyan(publicKeyPath)}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F4DD} Signature file: ${import_picocolors4.default.cyan(signaturePath)}`));
-        p4.log.info(import_picocolors4.default.green(`   \u2705 Status: ${import_picocolors4.default.white("VALID")}`));
-        p4.outro(
-          import_picocolors4.default.green("\u{1F389} Digital signature is valid!") + import_picocolors4.default.gray("\n   \u{1F4A1} The contract has not been tampered with.")
+        p5.log.success(import_picocolors5.default.green(`\u2728 Signature verification successful!`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F4C4} Contract: ${import_picocolors5.default.cyan(contractPath)}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F510} Algorithm: ${import_picocolors5.default.white(algorithm.toUpperCase())}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F194} Hash: ${import_picocolors5.default.white(pdfHash)}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u270D\uFE0F Signature: ${import_picocolors5.default.white(signature.substring(0, 32))}...`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F511} Public key: ${import_picocolors5.default.cyan(publicKeyPath)}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F4DD} Signature file: ${import_picocolors5.default.cyan(signaturePath)}`));
+        p5.log.info(import_picocolors5.default.green(`   \u2705 Status: ${import_picocolors5.default.white("VALID")}`));
+        p5.outro(
+          import_picocolors5.default.green("\u{1F389} Digital signature is valid!") + import_picocolors5.default.gray("\n   \u{1F4A1} The contract has not been tampered with.")
         );
       } else {
-        p4.log.error(import_picocolors4.default.red(`\u274C Signature verification failed!`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F4C4} Contract: ${import_picocolors4.default.cyan(contractPath)}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F510} Algorithm: ${import_picocolors4.default.white(algorithm.toUpperCase())}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F194} Hash: ${import_picocolors4.default.white(pdfHash)}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u270D\uFE0F  Signature: ${import_picocolors4.default.white(signature.substring(0, 32))}...`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F511} Public key: ${import_picocolors4.default.cyan(publicKeyPath)}`));
-        p4.log.info(import_picocolors4.default.gray(`   \u{1F4DD} Signature file: ${import_picocolors4.default.cyan(signaturePath)}`));
-        p4.log.info(import_picocolors4.default.red(`   \u274C Status: ${import_picocolors4.default.white("INVALID")}`));
-        p4.outro(
-          import_picocolors4.default.red("\u{1F4A5} Digital signature is invalid!") + import_picocolors4.default.gray("\n   \u26A0\uFE0F  The contract may have been tampered with.")
+        p5.log.error(import_picocolors5.default.red(`\u274C Signature verification failed!`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F4C4} Contract: ${import_picocolors5.default.cyan(contractPath)}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F510} Algorithm: ${import_picocolors5.default.white(algorithm.toUpperCase())}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F194} Hash: ${import_picocolors5.default.white(pdfHash)}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u270D\uFE0F  Signature: ${import_picocolors5.default.white(signature.substring(0, 32))}...`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F511} Public key: ${import_picocolors5.default.cyan(publicKeyPath)}`));
+        p5.log.info(import_picocolors5.default.gray(`   \u{1F4DD} Signature file: ${import_picocolors5.default.cyan(signaturePath)}`));
+        p5.log.info(import_picocolors5.default.red(`   \u274C Status: ${import_picocolors5.default.white("INVALID")}`));
+        p5.outro(
+          import_picocolors5.default.red("\u{1F4A5} Digital signature is invalid!") + import_picocolors5.default.gray("\n   \u26A0\uFE0F  The contract may have been tampered with.")
         );
         process.exit(1);
       }
     } catch (error) {
-      p4.log.error(
-        import_picocolors4.default.red(
+      p5.log.error(
+        import_picocolors5.default.red(
           `\u{1F4A5} Failed to verify signature: ${error instanceof Error ? error.message : "Unknown error"}`
         )
       );
-      p4.outro(import_picocolors4.default.red("\u274C Process terminated due to error."));
+      p5.outro(import_picocolors5.default.red("\u274C Process terminated due to error."));
       process.exit(1);
     }
   });
@@ -477,6 +588,7 @@ async function main() {
   CLI.version(packageVersion, "-v, --version");
   generateCommand(CLI);
   hashCommand(CLI);
+  metadataCommand(CLI);
   signCommand(CLI);
   verifyCommand(CLI);
   CLI.help();

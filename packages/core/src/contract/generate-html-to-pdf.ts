@@ -23,13 +23,14 @@ export const generateHtmlToPdf = async ({
     await browser.close();
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     if (metadata.title) pdfDoc.setTitle(metadata.title);
-    if (metadata.author) pdfDoc.setAuthor(metadata.author);
     if (metadata.subject) pdfDoc.setSubject(metadata.subject);
     if (metadata.keywords) pdfDoc.setKeywords(metadata.keywords);
-    if (metadata.producer) pdfDoc.setProducer(metadata.producer);
     if (metadata.creator) pdfDoc.setCreator(metadata.creator);
-    if (metadata.createDate) pdfDoc.setCreationDate(metadata.createDate);
-    if (metadata.modDate) pdfDoc.setModificationDate(metadata.modDate);
+    if (metadata.producer) pdfDoc.setProducer(metadata.producer);
+    if (metadata.author) pdfDoc.setAuthor(metadata.author);
+    const currentDate = metadata.createDate || new Date();
+    pdfDoc.setCreationDate(currentDate);
+    pdfDoc.setModificationDate(currentDate);
     const finalPdf = await pdfDoc.save();
     return Buffer.from(finalPdf);
   } catch (error) {
