@@ -1,5 +1,11 @@
 # @contract-js/core
 
+## 1.1.3
+
+### Patch Changes
+
+- Update README & Template Data Type
+
 ## 1.1.2
 
 ### Patch Changes

@@ -6,7 +6,7 @@
 
 **PDF Contract Generation from EJS Templates**
 
-*Generate PDF contracts from EJS templates with digital signature support and watermark capabilities.*
+*Generate PDF contracts from EJS templates with digital signature support and comprehensive metadata management.*
 
 [![npm version](https://img.shields.io/npm/v/@contract-js/core?style=flat-square)](https://www.npmjs.com/package/@contract-js/core)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
@@ -18,14 +18,16 @@
 
 ## 🎯 Purpose
 
-Generate professional PDF contracts from EJS templates with support for dynamic data, watermarks, and digital signature integration.
+Generate professional PDF contracts from EJS templates with support for dynamic data, comprehensive metadata management, and digital signature integration.
 
 ## ✨ Features
 
-- **PDF Generation** – Convert EJS templates to PDF documents
+- **PDF Generation** – Convert EJS templates to PDF documents using Puppeteer
 - **Template Rendering** – Render EJS templates with dynamic data
-- **Watermark Support** – Add watermarks to PDF documents
+- **Metadata Management** – Set and extract PDF metadata (title, author, creator, producer, etc.)
+- **Template Loading** – Load EJS templates from file system
 - **Digital Signature Ready** – Generate PDFs compatible with digital signatures
+- **TypeScript Support** – Full TypeScript support with comprehensive type definitions
 
 ## 🚀 Usage
 
@@ -35,11 +37,17 @@ Generate professional PDF contracts from EJS templates with support for dynamic 
 import { generatePdf } from '@contract-js/core';
 
 const result = await generatePdf({
-  templatePath: './template.ejs',
+  templateContent: '<h1>Hello <%= name %>!</h1>',
   templateData: {
-    title: 'Service Agreement',
-    clientName: 'John Doe',
-    date: '2024-01-15'
+    name: 'John Doe'
+  },
+  pdfConfig: {
+    metadata: {
+      title: 'Sample Contract',
+      author: 'ABC Corp',
+      creator: 'Contract-JS',
+      producer: 'Contract-JS PDF Engine'
+    }
   }
 });
 
@@ -47,26 +55,61 @@ console.log(`PDF generated: ${result.pdfKB}KB`);
 console.log(`Hash: ${result.pdfHash}`);
 ```
 
-### Template Rendering
+### Template Loading and Rendering
 
 ```typescript
-import { renderTemplate } from '@contract-js/core';
+import { loadTemplate, generatePdf } from '@contract-js/core';
 
-const html = await renderTemplate({
-  templatePath: './template.ejs',
-  templateData: { title: 'Contract Title' }
+// Load template from file
+const templateContent = await loadTemplate({
+  templatePath: './template.ejs'
+});
+
+// Generate PDF with loaded template
+const result = await generatePdf({
+  templateContent,
+  templateData: {
+    title: 'Service Agreement',
+    clientName: 'John Doe',
+    date: '2024-01-15'
+  },
+  pdfConfig: {
+    options: {
+      format: 'A4',
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '15mm',
+        right: '15mm'
+      }
+    },
+    metadata: {
+      title: 'Service Agreement',
+      author: 'ABC Corp',
+      creator: 'Contract-JS Generator',
+      producer: 'Contract-JS PDF Engine',
+      keywords: ['contract', 'agreement', 'service']
+    }
+  }
 });
 ```
 
-### Adding Watermarks
+### PDF Metadata Extraction
 
 ```typescript
-import { addWatermark } from '@contract-js/core';
+import { getPdfMetadata } from '@contract-js/core';
+import { readFile } from 'node:fs/promises';
 
-const watermarkedPdf = await addWatermark({
-  pdfBuffer: originalPdfBuffer,
-  watermarkText: 'CONFIDENTIAL',
-  opacity: 0.3
+const pdfBuffer = await readFile('contract.pdf');
+const metadata = await getPdfMetadata(pdfBuffer);
+
+console.log('PDF Metadata:', {
+  title: metadata.title,
+  author: metadata.author,
+  creator: metadata.creator,
+  producer: metadata.producer,
+  createDate: metadata.createDate,
+  modDate: metadata.modDate
 });
 ```
 
@@ -85,11 +128,114 @@ yarn add @contract-js/core
 
 ## 📋 API Reference
 
-| Function | Description | Parameters |
-|----------|-------------|------------|
-| `generatePdf` | Generate PDF from EJS template | `templatePath`, `templateData` |
-| `renderTemplate` | Render EJS template to HTML | `templatePath`, `templateData` |
-| `addWatermark` | Add watermark to PDF | `pdfBuffer`, `watermarkText`, `opacity` |
+### Core Functions
+
+| Function | Description | Parameters | Returns |
+|----------|-------------|------------|---------|
+| `generatePdf` | Generate PDF from EJS template | `templateContent`, `templateData`, `templateOptions?`, `pdfConfig?` | `Promise<PDFResult>` |
+| `loadTemplate` | Load EJS template from file | `templatePath`, `templateReadOptions?` | `Promise<string>` |
+| `getPdfMetadata` | Extract metadata from PDF | `pdfBuffer` | `Promise<PDFMetadata>` |
+
+### Types
+
+#### PDFResult
+```typescript
+type PDFResult = {
+  pdfBuffer: Buffer;
+  pdfHash: string;
+  pdfKB: number;
+};
+```
+
+#### PDFMetadata
+```typescript
+type PDFMetadata = {
+  title?: string;
+  author?: string;
+  subject?: string;
+  keywords?: string[];
+  producer?: string;
+  creator?: string;
+  createDate?: Date;
+  modDate?: Date;
+};
+```
+
+#### TemplateData
+```typescript
+type TemplateData = {
+  [key: string]: string | number | TemplateData;
+};
+```
+
+### PDF Configuration Options
+
+The `pdfConfig` parameter accepts:
+
+```typescript
+{
+  options?: PDFOptions; // Puppeteer PDF options
+  metadata?: PDFMetadata; // PDF metadata
+}
+```
+
+#### Default PDF Options
+- **Format**: A4
+- **Print Background**: true
+- **Margins**: 20mm top/bottom, 15mm left/right
+
+#### Default Metadata
+- **Creator**: Contract-JS Generator
+- **Producer**: Contract-JS PDF Engine
+- **Create Date**: Current date
+
+## 🔧 Advanced Usage
+
+### Custom PDF Options
+
+```typescript
+const result = await generatePdf({
+  templateContent,
+  templateData,
+  pdfConfig: {
+    options: {
+      format: 'Letter',
+      printBackground: true,
+      margin: {
+        top: '1in',
+        bottom: '1in',
+        left: '0.5in',
+        right: '0.5in'
+      },
+      displayHeaderFooter: true,
+      headerTemplate: '<div>Header</div>',
+      footerTemplate: '<div>Footer</div>'
+    }
+  }
+});
+```
+
+### Template Options
+
+```typescript
+const result = await generatePdf({
+  templateContent,
+  templateData,
+  templateOptions: {
+    delimiter: '%',
+    openDelimiter: '<%',
+    closeDelimiter: '%>',
+    strict: false
+  }
+});
+```
+
+## 🛠️ Dependencies
+
+- **pdf-lib**: PDF manipulation and metadata management
+- **puppeteer**: HTML to PDF conversion
+- **ejs**: Template engine
+- **@contract-js/pdf-utils**: PDF utilities (hash generation)
 
 ---
 
